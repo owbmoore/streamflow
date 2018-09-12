@@ -472,8 +472,8 @@ public class FrameworkService {
     public FrameworkConfig processFrameworkConfig(File tempFrameworkFile) {
         FrameworkConfig frameworkConfig = null;
 
-        try {
-            JarFile frameworkJarFile = new JarFile(tempFrameworkFile.getAbsoluteFile());
+        try (JarFile frameworkJarFile = new JarFile(tempFrameworkFile.getAbsoluteFile())){
+
 
             JarEntry frameworkYamlEntry = frameworkJarFile.getJarEntry("STREAMFLOW-INF/framework.yml");
 
@@ -564,9 +564,7 @@ public class FrameworkService {
         byte[] iconData = null;
 
         if (componentConfig.getIcon() != null) {
-            try {
-                JarFile frameworkJarFile = new JarFile(frameworkFile);
-
+            try (JarFile frameworkJarFile = new JarFile(frameworkFile)){
                 JarEntry iconEntry = frameworkJarFile.getJarEntry(componentConfig.getIcon());
                 if (iconEntry != null) {
                     iconData = IOUtils.toByteArray(frameworkJarFile.getInputStream(iconEntry));
