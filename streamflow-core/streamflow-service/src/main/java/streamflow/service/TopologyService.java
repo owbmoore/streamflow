@@ -407,203 +407,200 @@ public class TopologyService {
         }
     }
 
-    public String generateTopologyJar(Topology topology, Cluster cluster) {
-        // Generate a unique artifact ID for the topology
-        String projectId = "topology_" + topology.getId() + "_" + System.currentTimeMillis();
-        
-        try {
-            File topologyJarFile = new File(
-                    StreamflowEnvironment.getTopologiesDir(), projectId + ".jar");
-            
-            // Copy the template jar file to the topologies directory as a base for the topology
-            FileUtils.writeByteArrayToFile(topologyJarFile, loadTopologyTemplate());
-            
-            JarBuilder jarBuilder = new JarBuilder(topologyJarFile);
-            jarBuilder.open();
+        public String generateTopologyJar(Topology topology, Cluster cluster) {
+            // Generate a unique artifact ID for the topology
+            String projectId = "topology_" + topology.getId() + "_" + System.currentTimeMillis();
 
-            // Keep track of already added dependencies
-            HashSet<String> frameworkDependencies = new HashSet<>();
+            try {
+                File topologyJarFile = new File(
+                        StreamflowEnvironment.getTopologiesDir(), projectId + ".jar");
 
-            HashSet<String> processedSerializations = new HashSet<>();
+                // Copy the template jar file to the topologies directory as a base for the topology
+                FileUtils.writeByteArrayToFile(topologyJarFile, loadTopologyTemplate());
 
-            TopologyConfig topologyConfig = topology.getDeployedConfig();
+                try(JarBuilder jarBuilder = new JarBuilder(topologyJarFile)) {
+                    jarBuilder.open();
 
-            // Iterate over all of the nodes and add the dependencies to the lib dir (only once)
-            for (TopologyComponent topologyComponent : topologyConfig.getComponents().values()) {
-                // Save the node coordinates so each node is added only once
-                frameworkDependencies.add(topologyComponent.getFramework());
+                    // Keep track of already added dependencies
+                    HashSet<String> frameworkDependencies = new HashSet<>();
 
-                // Iterate over the property types for the component to see if files are specified
-                for (Map.Entry<String, String> propertyType
-                        : topologyComponent.getPropertyTypes().entrySet()) {
+                    HashSet<String> processedSerializations = new HashSet<>();
 
-                    // Check if the resource property type is a file
-                    if (propertyType.getValue() != null
-                            && propertyType.getValue().equalsIgnoreCase("file")) {
-                        // Get the upload ID from the property value
-                        String fileId = topologyComponent.getProperties()
-                                .get(propertyType.getKey());
+                    TopologyConfig topologyConfig = topology.getDeployedConfig();
 
-                        // Make sure the user actually specified a file for the field
-                        if (StringUtils.isNotBlank(fileId)) {
-                            // Embed the upload inside the topology jar
-                            if (embedTopologyFile(jarBuilder, fileId)) {
-                                // Update the file property to use the file path instead of the file ID
-                                topologyComponent.getProperties().put(propertyType.getKey(),
-                                        "/files/" + fileId);
-                            }
-                        }
-                    } else if (propertyType.getValue() != null
-                            && propertyType.getValue().equalsIgnoreCase("serialization")) {
-                        String typeClass = topologyComponent.getProperties()
-                                .get(propertyType.getKey());
+                    // Iterate over all of the nodes and add the dependencies to the lib dir (only once)
+                    for (TopologyComponent topologyComponent : topologyConfig.getComponents().values()) {
+                        // Save the node coordinates so each node is added only once
+                        frameworkDependencies.add(topologyComponent.getFramework());
 
-                        // Only add the serialization if it has not already been added
-                        if (StringUtils.isNotBlank(typeClass)
-                                && !processedSerializations.contains(typeClass)) {
-                            Serialization serialization = serializationService
-                                    .getSerializationWithTypeClass(typeClass);
+                        // Iterate over the property types for the component to see if files are specified
+                        for (Map.Entry<String, String> propertyType
+                                : topologyComponent.getPropertyTypes().entrySet()) {
 
-                            TopologySerialization topologySerialization
-                                    = new TopologySerialization();
-                            topologySerialization.setTypeClass(serialization.getTypeClass());
-                            topologySerialization.setSerializerClass(serialization.getSerializerClass());
-                            topologySerialization.setFramework(serialization.getFramework());
-                            topologySerialization.setFrameworkHash(
-                                    frameworkService.getFrameworkFileInfo(
-                                            serialization.getFramework()).getContentHash());
-                            topologySerialization.setVersion(serialization.getVersion());
+                            // Check if the resource property type is a file
+                            if (propertyType.getValue() != null
+                                    && propertyType.getValue().equalsIgnoreCase("file")) {
+                                // Get the upload ID from the property value
+                                String fileId = topologyComponent.getProperties()
+                                        .get(propertyType.getKey());
 
-                            topologyConfig.getSerializations().add(topologySerialization);
+                                // Make sure the user actually specified a file for the field
+                                if (StringUtils.isNotBlank(fileId)) {
+                                    // Embed the upload inside the topology jar
+                                    if (embedTopologyFile(jarBuilder, fileId)) {
+                                        // Update the file property to use the file path instead of the file ID
+                                        topologyComponent.getProperties().put(propertyType.getKey(),
+                                                "/files/" + fileId);
+                                    }
+                                }
+                            } else if (propertyType.getValue() != null
+                                    && propertyType.getValue().equalsIgnoreCase("serialization")) {
+                                String typeClass = topologyComponent.getProperties()
+                                        .get(propertyType.getKey());
 
-                            processedSerializations.add(serialization.getTypeClass());
+                                // Only add the serialization if it has not already been added
+                                if (StringUtils.isNotBlank(typeClass)
+                                        && !processedSerializations.contains(typeClass)) {
+                                    Serialization serialization = serializationService
+                                            .getSerializationWithTypeClass(typeClass);
 
-                            // Save the node coordinates so each node is added only once
-                            frameworkDependencies.add(serialization.getFramework());
-                        }
-                    }
-                }
+                                    TopologySerialization topologySerialization
+                                            = new TopologySerialization();
+                                    topologySerialization.setTypeClass(serialization.getTypeClass());
+                                    topologySerialization.setSerializerClass(serialization.getSerializerClass());
+                                    topologySerialization.setFramework(serialization.getFramework());
+                                    topologySerialization.setFrameworkHash(
+                                            frameworkService.getFrameworkFileInfo(
+                                                    serialization.getFramework()).getContentHash());
+                                    topologySerialization.setVersion(serialization.getVersion());
 
-                // Iterate over the resources to add the required dependencies to the build
-                for (TopologyResourceEntry topologyResource : topologyComponent.getResources()) {
-                    // Save the node coordinates so each node is added only once
-                    frameworkDependencies.add(topologyResource.getFramework());
+                                    topologyConfig.getSerializations().add(topologySerialization);
 
-                    // Iterate over the property types for the resoruce to see if files are specified
-                    for (Map.Entry<String, String> resourceType
-                            : topologyResource.getPropertyTypes().entrySet()) {
+                                    processedSerializations.add(serialization.getTypeClass());
 
-                        // Check if the resource property type is a file
-                        if (resourceType.getValue() != null
-                                && resourceType.getValue().equalsIgnoreCase("file")) {
-                            // Get the upload ID from the property value
-                            String fileId = topologyResource.getProperties()
-                                    .get(resourceType.getKey());
-
-                            // Make sure the user actually specified a file for the field
-                            if (StringUtils.isNotBlank(fileId)) {
-                                // Embed the upload inside the topology jar
-                                if (embedTopologyFile(jarBuilder, fileId)) {
-                                    // Update the resource property to use the file path instead of the upload ID
-                                    topologyResource.getProperties().put(resourceType.getKey(),
-                                            "/files/" + fileId);
+                                    // Save the node coordinates so each node is added only once
+                                    frameworkDependencies.add(serialization.getFramework());
                                 }
                             }
                         }
-                    }
-                }
 
-                List<Serialization> serializations
-                        = serializationService.listSerializationsWithFramework(
+                        // Iterate over the resources to add the required dependencies to the build
+                        for (TopologyResourceEntry topologyResource : topologyComponent.getResources()) {
+                            // Save the node coordinates so each node is added only once
+                            frameworkDependencies.add(topologyResource.getFramework());
+
+                            // Iterate over the property types for the resoruce to see if files are specified
+                            for (Map.Entry<String, String> resourceType
+                                    : topologyResource.getPropertyTypes().entrySet()) {
+
+                                // Check if the resource property type is a file
+                                if (resourceType.getValue() != null
+                                        && resourceType.getValue().equalsIgnoreCase("file")) {
+                                    // Get the upload ID from the property value
+                                    String fileId = topologyResource.getProperties()
+                                            .get(resourceType.getKey());
+
+                                    // Make sure the user actually specified a file for the field
+                                    if (StringUtils.isNotBlank(fileId)) {
+                                        // Embed the upload inside the topology jar
+                                        if (embedTopologyFile(jarBuilder, fileId)) {
+                                            // Update the resource property to use the file path instead of the upload ID
+                                            topologyResource.getProperties().put(resourceType.getKey(),
+                                                    "/files/" + fileId);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        List<Serialization> serializations
+                                = serializationService.listSerializationsWithFramework(
                                 topologyComponent.getFramework());
 
-                // Iterate over each of the serializations for the current framework
-                for (Serialization serialization : serializations) {
-                    // Iterate over the serializations for the current node and add them only once
-                    if (!processedSerializations.contains(serialization.getTypeClass())) {
-                        TopologySerialization topologySerialization
-                                = new TopologySerialization();
-                        topologySerialization.setTypeClass(serialization.getTypeClass());
-                        topologySerialization.setSerializerClass(serialization.getSerializerClass());
-                        topologySerialization.setFramework(topologyComponent.getFramework());
-                        topologySerialization.setFrameworkHash(
-                                frameworkService.getFrameworkFileInfo(
-                                        serialization.getFramework()).getContentHash());
-                        topologySerialization.setVersion(topologyComponent.getVersion());
-                        topologyConfig.getSerializations().add(topologySerialization);
+                        // Iterate over each of the serializations for the current framework
+                        for (Serialization serialization : serializations) {
+                            // Iterate over the serializations for the current node and add them only once
+                            if (!processedSerializations.contains(serialization.getTypeClass())) {
+                                TopologySerialization topologySerialization
+                                        = new TopologySerialization();
+                                topologySerialization.setTypeClass(serialization.getTypeClass());
+                                topologySerialization.setSerializerClass(serialization.getSerializerClass());
+                                topologySerialization.setFramework(topologyComponent.getFramework());
+                                topologySerialization.setFrameworkHash(
+                                        frameworkService.getFrameworkFileInfo(
+                                                serialization.getFramework()).getContentHash());
+                                topologySerialization.setVersion(topologyComponent.getVersion());
+                                topologyConfig.getSerializations().add(topologySerialization);
 
-                        processedSerializations.add(serialization.getTypeClass());
+                                processedSerializations.add(serialization.getTypeClass());
+                            }
+                        }
+                    }
+
+                    // Build the relam framework dir as a temporary storage for files
+                    File realmFrameworkDir = new File(StreamflowEnvironment.getFrameworksDir(), projectId);
+                    realmFrameworkDir.mkdirs();
+
+                    // Iterate over all of the identified dependencies and add them to topology jar
+                    for (String frameworkDependency : frameworkDependencies) {
+                        String frameworkHash = frameworkService.getFrameworkFileInfo(
+                                frameworkDependency).getContentHash();
+
+                        if (cluster.getId().equalsIgnoreCase(Cluster.LOCAL)) {
+                            File frameworkJarFile = new File(StreamflowEnvironment.getFrameworksDir(),
+                                    frameworkHash + ".jar");
+
+                            // Write out the file to disk only if it is not already there
+                            if (!frameworkJarFile.exists()) {
+                                byte[] frameworkJarData = frameworkService.getFrameworkJar(frameworkDependency);
+
+                                FileUtils.writeByteArrayToFile(frameworkJarFile, frameworkJarData);
+                            }
+
+                        } else {
+                            // Only need to embed files within the topology jar for cluster deploys
+                            String frameworkJarPath = "STREAMFLOW-INF" + File.separator + "lib"
+                                    + File.separator + frameworkHash + ".jar";
+
+                            byte[] frameworkJarData = frameworkService.getFrameworkJar(frameworkDependency);
+
+                            if (!jarBuilder.addFile(frameworkJarPath, frameworkJarData)) {
+                                LOG.error("Error while writing the framework jar dependency to the topology jar");
+                            }
+
+                            // Check each framework jar for inbuilt resources to copy to the topology resources
+                            embedFrameworkResources(jarBuilder, frameworkJarData);
+                        }
+                    }
+
+                    // Write out the topology file to the topology jar with the modified changes
+                    String topologyJsonPath = "STREAMFLOW-INF" + File.separator + "topology.json";
+
+                    if (!jarBuilder.addFile(topologyJsonPath, objectMapper.writeValueAsBytes(topology))) {
+                        LOG.error("Error while writing the topology.json file to the topology jar");
+                    }
+
+                    // Write out the config file to the topology jar with the modified changes
+                    String configJsonPath = "STREAMFLOW-INF" + File.separator + "config.json";
+
+                    streamflowConfig.setSelectedCluster(cluster);
+
+                    if (!jarBuilder.addFile(configJsonPath, objectMapper.writeValueAsBytes(streamflowConfig))) {
+                        LOG.error("Error while writing the config.json file to the topology jar");
                     }
                 }
-            }
-            
-            // Build the relam framework dir as a temporary storage for files
-            File realmFrameworkDir = new File(StreamflowEnvironment.getFrameworksDir(), projectId);
-            realmFrameworkDir.mkdirs();
+            } catch (IOException ex) {
+                // If an exception occurs, delete the topology project from disk
+                clearTopologyProject(projectId);
 
-            // Iterate over all of the identified dependencies and add them to topology jar
-            for (String frameworkDependency : frameworkDependencies) {
-                String frameworkHash = frameworkService.getFrameworkFileInfo(
-                            frameworkDependency).getContentHash();
-                
-                if (cluster.getId().equalsIgnoreCase(Cluster.LOCAL)) {
-                    File frameworkJarFile = new File(StreamflowEnvironment.getFrameworksDir(), 
-                            frameworkHash + ".jar");
-                    
-                    // Write out the file to disk only if it is not already there
-                    if (!frameworkJarFile.exists()) {
-                        byte[] frameworkJarData = frameworkService.getFrameworkJar(frameworkDependency);
+                LOG.error("Exception while generating the topology jar", ex);
 
-                        FileUtils.writeByteArrayToFile(frameworkJarFile, frameworkJarData);
-                    }
-                    
-                } else {
-                    // Only need to embed files within the topology jar for cluster deploys
-                    String frameworkJarPath = "STREAMFLOW-INF" + File.separator + "lib"
-                            + File.separator + frameworkHash + ".jar";
-
-                    byte[] frameworkJarData = frameworkService.getFrameworkJar(frameworkDependency);
-
-                    if (!jarBuilder.addFile(frameworkJarPath, frameworkJarData)) {
-                        LOG.error("Error while writing the framework jar dependency to the topology jar");
-                    }
-
-                    // Check each framework jar for inbuilt resources to copy to the topology resources
-                    embedFrameworkResources(jarBuilder, frameworkJarData);
-                }
+                throw new ServiceException("Error while generating the topology jar: "
+                        + ex.getMessage());
             }
 
-            // Write out the topology file to the topology jar with the modified changes
-            String topologyJsonPath = "STREAMFLOW-INF" + File.separator + "topology.json";
-
-            if (!jarBuilder.addFile(topologyJsonPath, objectMapper.writeValueAsBytes(topology))) {
-                LOG.error("Error while writing the topology.json file to the topology jar");
-            }
-
-            // Write out the config file to the topology jar with the modified changes
-            String configJsonPath = "STREAMFLOW-INF" + File.separator + "config.json";
-            
-            streamflowConfig.setSelectedCluster(cluster);
-
-            if (!jarBuilder.addFile(configJsonPath, objectMapper.writeValueAsBytes(streamflowConfig))) {
-                LOG.error("Error while writing the config.json file to the topology jar");
-            }
-            
-            // Close the new topology jar to move it to the topology directory
-            jarBuilder.close();
-            
-        } catch (IOException ex) {
-            // If an exception occurs, delete the topology project from disk
-            clearTopologyProject(projectId);
-            
-            LOG.error("Exception while generating the topology jar", ex);
-
-            throw new ServiceException("Error while generating the topology jar: "
-                    + ex.getMessage());
+            return projectId;
         }
-
-        return projectId;
-    }
 
     private boolean embedTopologyFile(JarBuilder jarBuilder, String fileId) {
         boolean success = false;
