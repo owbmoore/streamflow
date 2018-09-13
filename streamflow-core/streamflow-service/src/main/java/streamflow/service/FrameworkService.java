@@ -165,10 +165,8 @@ public class FrameworkService {
         ArrayList<ComponentConfig> components = new ArrayList<ComponentConfig>();
         String frameworkLevel = null;
         boolean foundFrameworkAnnotations = false;
-        ZipFile zipFile = null;
 
-        try {
-            zipFile = new ZipFile(jarFile);
+        try (ZipFile zipFile = new ZipFile(jarFile)){
 
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
@@ -370,14 +368,6 @@ public class FrameworkService {
 
             throw new EntityInvalidException("Error while parsing framework annotations: "
                     + ex.getMessage());
-        } finally {
-            if (zipFile != null) {
-                try {
-                    zipFile.close();
-                } catch (IOException e) {
-                    LOG.error("Error while closing framework zip");
-                }
-            }
         }
 
     }
