@@ -50,7 +50,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         
         <!-- Dependency Versions -->
-        <storm.version>1.2.2</storm.version>
+        <storm.version>1.2.3</storm.version>
         <jetty.version>9.4.8.v20171121</jetty.version>
         <jackson.version>2.9.8</jackson.version>
         <jersey.version>1.19.4</jersey.version>
