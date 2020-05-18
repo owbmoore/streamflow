@@ -69,6 +69,8 @@
         <powermock.version>1.5.6</powermock.version>
         <javassist.version>3.22.0-GA</javassist.version>
         <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
+        <bouncycastle.version>1.64</bouncycastle.version>
+        <mongo-java-driver.version>3.6.4</mongo-java-driver.version>
     </properties>
 
     <modules>
@@ -242,7 +244,14 @@
                 <artifactId>morphia</artifactId>
                 <version>${morphia.version}</version>
             </dependency>
-            
+
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongo-java-driver</artifactId>
+                <version>${mongo-java-driver.version}</version>
+            </dependency>
+
+
             <!-- Fongo Embedded MongoDB -->
             <dependency>
                 <groupId>com.github.fakemongo</groupId>
@@ -450,6 +459,19 @@
                 <artifactId>logstash-logback-encoder</artifactId>
                 <version>${logstash-logback-encoder.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
