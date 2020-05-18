@@ -15,14 +15,15 @@
  */
 package streamflow.datastore.mongodb.config;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
+import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
-import java.net.UnknownHostException;
 import streamflow.datastore.core.ComponentDao;
 import streamflow.datastore.core.FileContentDao;
 import streamflow.datastore.core.FrameworkDao;
@@ -50,6 +51,14 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class MongoDatastoreModule extends AbstractModule {
 
@@ -79,11 +88,14 @@ public class MongoDatastoreModule extends AbstractModule {
         if (mongoUri != null) {
             LOG.info("initializing MongoDB using uri: {}", mongoUri);
             MongoClientURI mongoClientURI = new MongoClientURI(mongoUri);
-            return new MongoClient(mongoClientURI);
+            List<ServerAddress> serverAddresses = mongoClientURI.getHosts().stream().map(ServerAddress::new).collect(toList());
+            MongoClientOptions.Builder clientOptions = MongoClientOptions.builder(mongoClientURI.getOptions());
+            configureSsl(datastoreConfig, clientOptions);
+            return new MongoClient(serverAddresses, clientOptions.build());
         }
 
         MongoClientOptions.Builder clientOptions = MongoClientOptions.builder();
-        
+
         String serverAddressHost = datastoreConfig.getProperty("host", String.class);
         if (serverAddressHost == null) {
             serverAddressHost = "localhost";
@@ -194,11 +206,39 @@ public class MongoDatastoreModule extends AbstractModule {
                     threadsAllowedToBlockForConnectionMultiplier);
         }
 
+        configureSsl(datastoreConfig, clientOptions);
+
         ServerAddress serverAddress = new ServerAddress(serverAddressHost, serverAddressPort);
         MongoClientOptions mongoClientOptions = clientOptions.build();
         return new MongoClient(serverAddress, mongoClientOptions);
     }
-    
+
+    private void configureSsl(DatastoreConfig datastoreConfig, MongoClientOptions.Builder clientOptions) {
+        String certConfigLocation = datastoreConfig.getProperty("certConfigLocation", String.class);
+        if (certConfigLocation != null) {
+            LOG.info("looking for Mongo cert config information from {}", certConfigLocation);
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                JsonNode cfg = objectMapper.readTree(new URL(certConfigLocation));
+                ServiceCertificate serviceCertificate = new ServiceCertificate(
+                        cfg.get("Certificate").asText(),
+                        cfg.get("CertificateChain").asText(),
+                        cfg.get("PrivateKey").asText(),
+                        cfg.get("Passphrase").asText()
+                );
+
+                SSLContext sslContext = serviceCertificate.getSSLContext();
+                clientOptions
+                        .sslEnabled(true)
+                        .sslContext(sslContext);
+
+            } catch (Exception e) {
+                LOG.error("Unable to read mongo cert config from {}, {}", certConfigLocation, e.getMessage());
+            }
+        }
+    }
+
+
     @Provides
     public Datastore providesMorphiaDatastore(MongoClient mongo, DatastoreConfig datastoreConfig) {
         String dbName = datastoreConfig.getProperty("dbName", String.class);
