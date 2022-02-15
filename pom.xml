@@ -43,9 +43,6 @@
 
     <properties> 
         <!-- Core Properties -->       
-        <jdk.version>1.8</jdk.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         
@@ -66,11 +63,14 @@
         <logback.version>1.2.3</logback.version>
         <log4j.version>1.2.17</log4j.version>
         <junit.version>4.11</junit.version>
-        <powermock.version>1.5.6</powermock.version>
         <javassist.version>3.22.0-GA</javassist.version>
         <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
         <bouncycastle.version>1.64</bouncycastle.version>
         <mongo-java-driver.version>3.6.4</mongo-java-driver.version>
+        <mockito.version>4.3.1</mockito.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <jacoco.version>0.8.7</jacoco.version>
     </properties>
 
     <modules>
@@ -80,17 +80,6 @@
         <module>streamflow-dist</module>
     </modules>
     
-    <repositories>
-        <repository>
-            <id>clojars.org</id>
-            <url>http://clojars.org/repo</url>
-        </repository>
-        <repository>
-            <id>EclipseLink Repo</id>
-            <url>http://download.eclipse.org/rt/eclipselink/maven.repo</url>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
             <!-- Core Storm Library -->
@@ -250,7 +239,6 @@
                 <artifactId>mongo-java-driver</artifactId>
                 <version>${mongo-java-driver.version}</version>
             </dependency>
-
 
             <!-- Fongo Embedded MongoDB -->
             <dependency>
@@ -441,19 +429,6 @@
                 <scope>test</scope>
             </dependency>
             
-            <!-- Powermock/Mockito Testing -->
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
@@ -470,6 +445,12 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
             </dependency>
 
         </dependencies>
@@ -498,13 +479,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -517,8 +493,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

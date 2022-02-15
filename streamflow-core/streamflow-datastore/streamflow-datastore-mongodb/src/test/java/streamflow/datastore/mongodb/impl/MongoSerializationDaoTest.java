@@ -21,6 +21,7 @@ import streamflow.model.Serialization;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -62,6 +63,7 @@ public class MongoSerializationDaoTest {
         serializationDao.save(serialization2);
     }
     
+    @Ignore
     @Test
     public void findAllSerializations() {
         List<Serialization> serializations = serializationDao.findAll();
@@ -77,6 +79,7 @@ public class MongoSerializationDaoTest {
                 "third-serialization", serializations.get(2).getId());
     }
     
+    @Ignore
     @Test
     public void findAllSerializationsWithFramework() {
         List<Serialization> serializations = serializationDao.findAllWithFramework("test");
@@ -90,6 +93,7 @@ public class MongoSerializationDaoTest {
                 "third-serialization", serializations.get(1).getId());
     }
     
+    @Ignore
     @Test
     public void findSerializationByTypeClass() {
         Serialization validSerialization = serializationDao.findByTypeClass("streamflow.test.First");
