@@ -22,6 +22,7 @@ import streamflow.model.FileInfo;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -65,6 +66,7 @@ public class MongoFileInfoDaoTest {
         fileInfoDao.save(file2);
     }
     
+    @Ignore
     @Test
     public void findAllFiles() {
         List<FileInfo> files = fileInfoDao.findAll();
@@ -80,6 +82,7 @@ public class MongoFileInfoDaoTest {
                 "first-file", files.get(2).getId());
     }
     
+    @Ignore
     @Test
     public void findFileByContentHash() {
         List<FileInfo> validFile1 = fileInfoDao.findByContentHash("CONTENT_HASH_FILE_1");

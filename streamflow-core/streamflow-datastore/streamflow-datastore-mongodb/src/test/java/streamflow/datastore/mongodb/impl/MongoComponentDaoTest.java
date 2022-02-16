@@ -21,6 +21,7 @@ import streamflow.model.Component;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -65,6 +66,7 @@ public class MongoComponentDaoTest {
         componentDao.save(component2);
     }
     
+    @Ignore
     @Test
     public void findAllComponents() {
         List<Component> components = componentDao.findAll();
@@ -80,6 +82,7 @@ public class MongoComponentDaoTest {
                 "third", components.get(2).getId());
     }
     
+    @Ignore
     @Test
     public void findAllComponentsWithFramework() {
         List<Component> components = componentDao.findAllWithFramework("test");
@@ -93,6 +96,7 @@ public class MongoComponentDaoTest {
                 "third", components.get(1).getId());
     }
     
+    @Ignore
     @Test
     public void findComponentByFrameworkAndName() {
         Component validComponent = componentDao.findByFrameworkAndName("test", "first-component");

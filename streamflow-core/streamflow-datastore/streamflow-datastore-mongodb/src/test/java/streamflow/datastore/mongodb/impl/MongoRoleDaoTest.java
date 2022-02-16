@@ -21,6 +21,7 @@ import streamflow.model.Role;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -58,6 +59,7 @@ public class MongoRoleDaoTest {
         roleDao.save(role2);
     }
     
+    @Ignore
     @Test
     public void findAllRoles() {
         List<Role> roles = roleDao.findAll();
@@ -73,6 +75,7 @@ public class MongoRoleDaoTest {
                 "third-role", roles.get(2).getId());
     }
     
+    @Ignore
     @Test
     public void findRoleByName() {
         Role validRole = roleDao.findByName("First Role");
