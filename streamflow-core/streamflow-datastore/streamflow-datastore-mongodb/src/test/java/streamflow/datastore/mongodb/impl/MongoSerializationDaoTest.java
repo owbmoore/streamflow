@@ -15,14 +15,19 @@
  */
 package streamflow.datastore.mongodb.impl;
 
-import com.github.fakemongo.junit.FongoRule;
+import com.mongodb.MongoClient;
+import com.mongodb.ServerAddress;
+
+import de.bwaldvogel.mongo.MongoServer;
+import de.bwaldvogel.mongo.backend.memory.MemoryBackend;
+
+import java.net.InetSocketAddress;
 import java.util.List;
 import streamflow.model.Serialization;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mongodb.morphia.Datastore;
@@ -31,15 +36,17 @@ import org.mongodb.morphia.Morphia;
 @Category(IntegrationTest.class)
 public class MongoSerializationDaoTest {
 
-    @Rule
-    public FongoRule fongoRule = new FongoRule();
+    private MongoClient mongoClient;
+
     
     private MongoSerializationDao serializationDao;
     
     @Before
     public void setUp() {
-        Datastore datastore = new Morphia().createDatastore(fongoRule.getMongoClient(), "streamflow");
-        
+        MongoServer mongoServer = new MongoServer(new MemoryBackend());
+        InetSocketAddress serverAddress = mongoServer.bind();
+        mongoClient = new MongoClient(new ServerAddress(serverAddress));
+        Datastore datastore = new Morphia().createDatastore(mongoClient, "streamflow");        
         serializationDao = new MongoSerializationDao(datastore);
         
         // Preload some items into the datastore

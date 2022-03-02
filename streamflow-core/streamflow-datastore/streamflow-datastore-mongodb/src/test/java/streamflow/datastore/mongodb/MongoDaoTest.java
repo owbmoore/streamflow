@@ -15,8 +15,13 @@
  */
 package streamflow.datastore.mongodb;
 
+import com.mongodb.MongoClient;
+import com.mongodb.ServerAddress;
+import de.bwaldvogel.mongo.MongoServer;
+import de.bwaldvogel.mongo.backend.memory.MemoryBackend;
+import java.net.InetSocketAddress;
+
 import streamflow.model.test.TestEntity;
-import com.github.fakemongo.junit.FongoRule;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import java.util.List;
@@ -35,16 +40,20 @@ import org.mongodb.morphia.query.Query;
 @Category(IntegrationTest.class)
 public class MongoDaoTest {
     
-    @Rule
-    public FongoRule fongoRule = new FongoRule();
     
     private MongoDao<TestEntity, String> mongoDao;
     
     private TestEntity mockedEntity;
+    
+    private MongoClient mongoClient;
 
     @Before
     public void setUp() {
-        DBCollection collection = fongoRule.getDB("streamflow").getCollection("test");
+        MongoServer mongoServer = new MongoServer(new MemoryBackend());
+        InetSocketAddress serverAddress = mongoServer.bind();
+        mongoClient = new MongoClient(new ServerAddress(serverAddress));
+       
+        DBCollection collection = mongoClient.getDB("streamflow").getCollection("test");
         
         mockedEntity = new TestEntity();
         mockedEntity.setId(UUID.randomUUID().toString());
@@ -61,7 +70,7 @@ public class MongoDaoTest {
         mockedObject.put("byteArrayField", mockedEntity.getByteArrayField());
         collection.save(mockedObject);
         
-        Datastore datastore = new Morphia().createDatastore(fongoRule.getMongoClient(), "streamflow");
+        Datastore datastore = new Morphia().createDatastore(mongoClient, "streamflow");
         
         mongoDao = new MongoDao<TestEntity, String>(datastore, TestEntity.class);
     }
@@ -78,7 +87,7 @@ public class MongoDaoTest {
         assertEquals("The response and request entities should be equal", requestEntity, responseEntity);
         
         assertEquals("The datastore should have one new entity", 2, 
-                fongoRule.getDB("streamflow").getCollection("test").count());
+                mongoClient.getDB("streamflow").getCollection("test").count());
     }
     
     @Ignore
@@ -98,7 +107,7 @@ public class MongoDaoTest {
         assertEquals("The response and request entities should be equal", requestEntity, responseEntity);
         
         assertEquals("The datastore should still have one entity", 1, 
-                fongoRule.getDB("streamflow").getCollection("test").count());
+                mongoClient.getDB("streamflow").getCollection("test").count());
     }
     
     @Ignore
@@ -143,7 +152,7 @@ public class MongoDaoTest {
         mongoDao.delete(requestEntity);
         
         assertEquals("The datastore should have zero entities after the delete", 0, 
-                fongoRule.getDB("streamflow").getCollection("test").count());
+                mongoClient.getDB("streamflow").getCollection("test").count());
     }
     
     @Ignore
@@ -152,7 +161,7 @@ public class MongoDaoTest {
         mongoDao.deleteById(mockedEntity.getId());
         
         assertEquals("The datastore should have zero entities after the delete", 0, 
-                fongoRule.getDB("streamflow").getCollection("test").count());
+                mongoClient.getDB("streamflow").getCollection("test").count());
     }
     
     @Ignore

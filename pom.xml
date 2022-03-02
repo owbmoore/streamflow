@@ -47,6 +47,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         
         <!-- Dependency Versions -->
+        <mongo-java-server.version>1.39.0</mongo-java-server.version>
         <storm.version>1.2.3</storm.version>
         <jetty.version>9.4.8.v20171121</jetty.version>
         <jackson.version>2.9.8</jackson.version>
@@ -240,11 +241,10 @@
                 <version>${mongo-java-driver.version}</version>
             </dependency>
 
-            <!-- Fongo Embedded MongoDB -->
             <dependency>
-                <groupId>com.github.fakemongo</groupId>
-                <artifactId>fongo</artifactId>
-                <version>2.1.0</version>
+                <groupId>de.bwaldvogel</groupId>
+                <artifactId>mongo-java-server</artifactId>
+                <version>${mongo-java-server.version}</version>
                 <scope>test</scope>
             </dependency>
 

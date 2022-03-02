@@ -15,16 +15,13 @@
  */
 package streamflow.datastore.mongodb.impl;
 
-import com.github.fakemongo.junit.FongoRule;
 import streamflow.model.test.IntegrationTest;
-import org.junit.Rule;
 import org.junit.experimental.categories.Category;
 
 @Category(IntegrationTest.class)
 public class MongoFileContentDaoTest {
 
-    @Rule
-    public FongoRule fongoRule = new FongoRule();
+
     
     // TODO: FONGO DOES NOT SUPPORT UNIT TESTS OF GRIDFS: RE-EXAMINE THIS IN THE FUTURE
 }
