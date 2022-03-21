@@ -52,6 +52,7 @@ import org.mongodb.morphia.Morphia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.URL;
@@ -226,12 +227,8 @@ public class MongoDatastoreModule extends AbstractModule {
                         cfg.get("PrivateKey").asText(),
                         cfg.get("Passphrase").asText()
                 );
-
                 SSLContext sslContext = serviceCertificate.getSSLContext();
-                clientOptions
-                        .sslEnabled(true)
-                        .sslContext(sslContext);
-
+                clientOptions.sslEnabled(true).socketFactory(sslContext.getSocketFactory());
             } catch (Exception e) {
                 LOG.error("Unable to read mongo cert config from {}, {}", certConfigLocation, e.getMessage());
             }

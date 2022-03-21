@@ -27,7 +27,6 @@ import streamflow.model.Framework;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mongodb.morphia.Datastore;
@@ -72,7 +71,6 @@ public class MongoFrameworkDaoTest {
         frameworkDao.save(framework2);
     }
     
-    @Ignore
     @Test
     public void findAllFrameworks() {
         List<Framework> frameworks = frameworkDao.findAll();

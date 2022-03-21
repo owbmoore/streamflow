@@ -27,7 +27,6 @@ import streamflow.model.User;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mongodb.morphia.Datastore;
@@ -75,7 +74,6 @@ public class MongoUserDaoTest {
         userDao.save(user2);
     }
     
-    @Ignore
     @Test
     public void findAllUsers() {
         List<User> users = userDao.findAll();
@@ -91,7 +89,6 @@ public class MongoUserDaoTest {
                 "second-user", users.get(2).getId());
     }
     
-    @Ignore
     @Test
     public void findUserByUsername() {
         User validUser = userDao.findByUsername("johndoe");
@@ -103,7 +100,6 @@ public class MongoUserDaoTest {
         assertNull("The returned user should be null with invalid query values", invalidUser);
     }
     
-    @Ignore
     @Test
     public void findUserByEmail() {
         User validUser = userDao.findByEmail("john.smith@email.com");

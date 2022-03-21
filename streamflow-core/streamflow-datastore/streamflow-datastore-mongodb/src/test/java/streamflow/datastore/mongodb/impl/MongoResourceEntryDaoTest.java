@@ -27,7 +27,6 @@ import streamflow.model.ResourceEntry;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mongodb.morphia.Datastore;
@@ -94,7 +93,6 @@ public class MongoResourceEntryDaoTest {
         resourceEntryDao.save(resourceEntry6);
     }
     
-    @Ignore
     @Test
     public void saveResourceEntryForUser() {
         ResourceEntry requestResourceEntry = new ResourceEntry();
@@ -112,7 +110,6 @@ public class MongoResourceEntryDaoTest {
                 resourceEntryDao.findAllWithResource(requestResourceEntry.getResource(), "user1").size());
     }
     
-    @Ignore
     @Test
     public void saveResourceEntryForAnonymous() {
         ResourceEntry requestResourceEntry = new ResourceEntry();
@@ -130,7 +127,6 @@ public class MongoResourceEntryDaoTest {
                 resourceEntryDao.findAllWithResource(requestResourceEntry.getResource(), null).size());
     }
     
-    @Ignore
     @Test
     public void updateResourceEntryForUser() {
         ResourceEntry requestResourceEntry = new ResourceEntry();
@@ -150,7 +146,6 @@ public class MongoResourceEntryDaoTest {
                 resourceEntryDao.findAllWithResource(requestResourceEntry.getResource(), "user1").size());
     }
     
-    @Ignore
     @Test
     public void updateResourceEntryForAnonymous() {
         ResourceEntry requestResourceEntry = new ResourceEntry();
@@ -170,7 +165,6 @@ public class MongoResourceEntryDaoTest {
                 resourceEntryDao.findAllWithResource(requestResourceEntry.getResource(), null).size());
     }
     
-    @Ignore
     @Test
     public void checkIfResourceEntryExistsForUser() {
         assertTrue("Exists should return true for an entity with a valid ID", 
@@ -180,7 +174,6 @@ public class MongoResourceEntryDaoTest {
                 resourceEntryDao.exists("second", "user1"));
     }
     
-    @Ignore
     @Test
     public void checkIfResourceEntryExistsForAnonymous() {
         assertTrue("Exists should return true for an entity with a valid ID", 
@@ -190,7 +183,6 @@ public class MongoResourceEntryDaoTest {
                 resourceEntryDao.exists("second", null));
     }
     
-    @Ignore
     @Test
     public void findAllWithResourceForUser() {
         List<ResourceEntry> resource1Entries = resourceEntryDao.findAllWithResource("resource-1", "user1");
@@ -212,7 +204,6 @@ public class MongoResourceEntryDaoTest {
                 "fifth", resource2Entries.get(0).getId());
     }
     
-    @Ignore
     @Test
     public void findAllWithResourceForAnonymous() {
         List<ResourceEntry> resource1Entries = resourceEntryDao.findAllWithResource("resource-1", null);
@@ -232,7 +223,6 @@ public class MongoResourceEntryDaoTest {
                 "sixth", resource2Entries.get(0).getId());
     }
     
-    @Ignore
     @Test
     public void findResourceEntryByIdForUser() {
         ResourceEntry validResourceEntry = resourceEntryDao.findById("first", "user1");
@@ -244,7 +234,6 @@ public class MongoResourceEntryDaoTest {
         assertNull("The returned entry should be null with invalid query values", invalidTopology);
     }
     
-    @Ignore
     @Test
     public void findResourceEntryByIdForAnonymous() {
         ResourceEntry validResourceEntry = resourceEntryDao.findById("fourth", null);
@@ -256,7 +245,6 @@ public class MongoResourceEntryDaoTest {
         assertNull("The returned entry should be null with invalid query values", invalidResourceEntry);
     }
     
-    @Ignore
     @Test
     public void findResourceEntryByResourceAndNameForUser() {
         ResourceEntry validResourceEntry = resourceEntryDao.findByResourceAndName(
@@ -270,7 +258,6 @@ public class MongoResourceEntryDaoTest {
         assertNull("The returned entry should be null with invalid query values", invalidResourceEntry);
     }
     
-    @Ignore
     @Test
     public void findResourceEntryByResourceAndNameForAnonymous() {
         ResourceEntry validResourceEntry = resourceEntryDao.findByResourceAndName(
@@ -284,7 +271,6 @@ public class MongoResourceEntryDaoTest {
         assertNull("The returned entry should be null with invalid query values", invalidResourceEntry);
     }
     
-    @Ignore
     @Test
     public void deleteResourceEntryByReferenceForUser() {
         ResourceEntry resourceEntry = resourceEntryDao.findById("first", "user1");
@@ -298,7 +284,6 @@ public class MongoResourceEntryDaoTest {
                 1, resourceEntryDao.findAllWithResource("resource-2", "user1").size());
     }
     
-    @Ignore
     @Test
     public void deleteResourceEntryByReferenceForAnonymous() {
         ResourceEntry resourceEntry = resourceEntryDao.findById("fourth", null);
@@ -312,7 +297,6 @@ public class MongoResourceEntryDaoTest {
                 1, resourceEntryDao.findAllWithResource("resource-2", null).size());
     }
     
-    @Ignore
     @Test
     public void deleteResourceEntryByIdForUser() {
         resourceEntryDao.deleteById("first", "user1");
@@ -332,7 +316,6 @@ public class MongoResourceEntryDaoTest {
                 1, resourceEntryDao.findAllWithResource("resource-2", null).size());
     }
     
-    @Ignore
     @Test
     public void deleteResourceEntryByIdForAnonymous() {
         resourceEntryDao.deleteById("fourth", null);

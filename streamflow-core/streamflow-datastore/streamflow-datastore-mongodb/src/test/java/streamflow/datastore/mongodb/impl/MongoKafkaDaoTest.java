@@ -27,7 +27,6 @@ import streamflow.model.kafka.KafkaCluster;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mongodb.morphia.Datastore;
@@ -66,7 +65,6 @@ public class MongoKafkaDaoTest {
         kafkaDao.save(kafkaCluster2);
     }
     
-    @Ignore
     @Test
     public void findAllKafkaClusters() {
         List<KafkaCluster> kafkaClusters = kafkaDao.findAll();
@@ -82,7 +80,6 @@ public class MongoKafkaDaoTest {
                 "third-cluster", kafkaClusters.get(2).getId());
     }
     
-    @Ignore
     @Test
     public void findKafkaClusterByName() {
         KafkaCluster validCluster = kafkaDao.findByName("First Cluster");

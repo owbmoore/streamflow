@@ -67,7 +67,7 @@
         <javassist.version>3.22.0-GA</javassist.version>
         <logstash-logback-encoder.version>4.11</logstash-logback-encoder.version>
         <bouncycastle.version>1.64</bouncycastle.version>
-        <mongo-java-driver.version>3.6.4</mongo-java-driver.version>
+        <mongodb-driver-legacy.version>4.5.0</mongodb-driver-legacy.version>
         <mockito.version>4.3.1</mockito.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -237,8 +237,8 @@
 
             <dependency>
                 <groupId>org.mongodb</groupId>
-                <artifactId>mongo-java-driver</artifactId>
-                <version>${mongo-java-driver.version}</version>
+                <artifactId>mongodb-driver-legacy</artifactId>
+                <version>${mongodb-driver-legacy.version}</version>
             </dependency>
 
             <dependency>

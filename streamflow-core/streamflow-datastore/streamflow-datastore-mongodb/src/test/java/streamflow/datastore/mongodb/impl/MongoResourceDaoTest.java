@@ -27,7 +27,6 @@ import streamflow.model.Resource;
 import streamflow.model.test.IntegrationTest;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mongodb.morphia.Datastore;
@@ -72,7 +71,6 @@ public class MongoResourceDaoTest {
         resourceDao.save(resource2);
     }
     
-    @Ignore
     @Test
     public void findAllResources() {
         List<Resource> resources = resourceDao.findAll();
@@ -88,7 +86,6 @@ public class MongoResourceDaoTest {
                 "third", resources.get(2).getId());
     }
     
-    @Ignore
     @Test
     public void findAllResourceWithFramework() {
         List<Resource> resources = resourceDao.findAllWithFramework("test");
@@ -102,7 +99,6 @@ public class MongoResourceDaoTest {
                 "third", resources.get(1).getId());
     }
     
-    @Ignore
     @Test
     public void findResourceByFrameworkAndName() {
         Resource validResource = resourceDao.findByFrameworkAndName("test", "first-resource");
